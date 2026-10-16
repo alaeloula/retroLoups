@@ -7,7 +7,7 @@
  *    - Qui a accès : Tout le monde
  * 3. Copiez l'URL de l'application Web (elle finit par /exec).
  */
-const CLE_ANIMATEUR = 'changez-moi';
+const CLE_ANIMATEUR = 'retroSP2';
 
 const FEUILLE = 'Notes';
 const ENTETES = ['id', 'retro', 'colonne', 'texte', 'auteur', 'responsable', 'echeance', 'votes', 'supprime', 'date'];

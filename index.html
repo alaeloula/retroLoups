@@ -1,0 +1,223 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>[hidden]{display:none!important}body{margin:0}img{max-width:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+<title>Rétro Piste des Loups</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@500;800&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout : forêt enneigée à l'aube, tête de loup géométrique, piste d'empreintes ; colonnes au nom clair + sous-titre "meute" */
+:root{
+  color-scheme: light;
+  --neige:#f2f5f6; --carte:#ffffff; --ligne:#d5dde0; --ardoise:#2c3a40; --gris:#5f6f76;
+  --pin:#2f6b4f; --rouille:#b9542f; --ciel:#3c6e8f; --ambre:#c7882a; --lilas:#7a5c8f;
+  --display:"Bitter", Georgia, serif; --body:"Source Sans 3", system-ui, sans-serif;
+}
+*{box-sizing:border-box}
+body{background:var(--neige);color:var(--ardoise);font-family:var(--body);font-size:15px;line-height:1.45;
+  padding-left:max(16px, env(safe-area-inset-left,0px));padding-right:max(16px, env(safe-area-inset-right,0px));padding-block:0 48px}
+.wrap{max-width:1360px;margin:0 auto}
+header{display:flex;align-items:center;gap:22px;padding-block:28px 14px;flex-wrap:wrap}
+.head{width:92px;height:92px;flex:none}
+.titles{flex:1;min-width:0}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--pin);font-weight:700}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,5.5vw,52px);line-height:1.05;margin:4px 0 8px;text-wrap:balance}
+.meta{display:flex;gap:14px;flex-wrap:wrap;align-items:center;color:var(--gris)}
+.meta input{background:var(--carte);border:1px solid var(--ligne);color:var(--ardoise);border-radius:6px;padding:6px 10px;font:inherit;width:190px;max-width:100%}
+.tracks{height:22px;margin:4px 0 16px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='22'%3E%3Cg fill='%23c3ced2'%3E%3Cellipse cx='12' cy='15' rx='4' ry='3.2'/%3E%3Ccircle cx='7.5' cy='10' r='1.6'/%3E%3Ccircle cx='10.5' cy='7' r='1.6'/%3E%3Ccircle cx='14' cy='7' r='1.6'/%3E%3Ccircle cx='17' cy='10' r='1.6'/%3E%3Cellipse cx='42' cy='10' rx='4' ry='3.2'/%3E%3Ccircle cx='37.5' cy='5' r='1.6'/%3E%3Ccircle cx='40.5' cy='2' r='1.6'/%3E%3Ccircle cx='44' cy='2' r='1.6'/%3E%3Ccircle cx='47' cy='5' r='1.6'/%3E%3C/g%3E%3C/svg%3E");background-repeat:repeat-x}
+.intro{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.intro p{margin:0;flex:1 1 320px;max-width:70ch;color:var(--gris)}
+.intro b{color:var(--ardoise)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start}
+button{font:inherit;cursor:pointer;border-radius:6px;border:1px solid var(--ligne);background:var(--carte);color:var(--ardoise);padding:7px 12px}
+button:hover{border-color:var(--gris)}
+button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--ambre);outline-offset:2px}
+button.primary{background:var(--pin);color:var(--carte);border-color:transparent;font-weight:700}
+button.primary.alt{background:var(--ardoise)}
+.panel{background:var(--carte);border:1px solid var(--ligne);border-left:4px solid var(--pin);border-radius:8px;padding:14px 16px;margin-bottom:16px;display:flex;flex-direction:column;gap:8px;max-width:760px}
+.panel h3{font-family:var(--display);margin:0;font-size:19px}
+.panel p{margin:0;color:var(--gris)}
+.panel textarea{width:100%;min-height:90px;background:var(--neige);border:1px solid var(--ligne);border-radius:6px;padding:8px;font:13px ui-monospace,Menlo,Consolas,monospace;color:var(--ardoise);overflow-wrap:anywhere}
+.prow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pmsg{color:var(--pin);font-weight:600}
+.confirm{background:var(--carte);border:1px solid var(--rouille);border-radius:6px;padding:10px 14px;margin-bottom:14px}
+.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+@media (max-width:1200px){.board{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:820px){.board{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:540px){.board{grid-template-columns:1fr}}
+.col{background:var(--carte);border:1px solid var(--ligne);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.tag{align-self:flex-start;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--carte);background:var(--c);padding:3px 8px;border-radius:4px}
+.col h2{font-family:var(--display);font-weight:800;font-size:22px;margin:0;line-height:1.15}
+.col .sub{margin:-4px 0 0;font-style:italic;color:var(--c);font-weight:600;font-size:14px}
+.col .q{margin:0;color:var(--gris);font-size:13.5px}
+.add{display:flex;flex-direction:column;gap:6px}
+.add textarea,.add input{background:var(--neige);border:1px solid var(--ligne);color:var(--ardoise);border-radius:6px;padding:8px;font:inherit;min-width:0}
+.add textarea{resize:vertical;min-height:52px}
+.add .two{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.add button{align-self:flex-end;background:var(--c);color:var(--carte);border-color:transparent;font-weight:700}
+.notes{display:flex;flex-direction:column;gap:8px}
+.note{background:var(--neige);border-radius:6px;padding:10px 10px 8px;border-left:4px solid var(--c);display:flex;flex-direction:column;gap:6px;min-width:0;overflow-wrap:anywhere}
+.note .txt{white-space:pre-wrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:12px;background:var(--carte);border:1px solid var(--ligne);border-radius:999px;padding:1px 8px;color:var(--gris)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.vote{display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums;color:var(--gris);font-size:13px}
+.vote button,.del{padding:2px 8px;font-size:13px;background:transparent}
+.paw{width:14px;height:14px;fill:var(--c);vertical-align:-2px}
+.empty{color:var(--gris);font-style:italic;font-size:13.5px;margin:0}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ardoise);color:var(--carte);padding:8px 14px;border-radius:6px;font-weight:600}
+footer{margin-top:26px;color:var(--gris);font-size:13px;max-width:80ch}
+</style>
+
+<div class="wrap">
+<header>
+  <svg class="head" viewBox="0 0 100 100" aria-hidden="true">
+    <polygon points="20,6 37,30 18,38" fill="#45545b"/><polygon points="80,6 63,30 82,38" fill="#45545b"/>
+    <polygon points="24,14 33,29 22,33" fill="#b9542f" opacity=".55"/><polygon points="76,14 67,29 78,33" fill="#b9542f" opacity=".55"/>
+    <polygon points="18,38 37,30 50,34 63,30 82,38 86,56 66,74 50,94 34,74 14,56" fill="#5f6f76"/>
+    <polygon points="18,38 37,30 50,34 50,56 30,52" fill="#71828a"/>
+    <polygon points="14,56 30,52 34,74" fill="#4d5c63"/><polygon points="86,56 70,52 66,74" fill="#4d5c63"/>
+    <polygon points="38,58 50,54 62,58 57,80 50,90 43,80" fill="#e9eef0"/>
+    <polygon points="30,46 40,44 38,50" fill="#c7882a"/><polygon points="70,46 60,44 62,50" fill="#c7882a"/>
+    <polygon points="45,76 55,76 50,82" fill="#2c3a40"/>
+  </svg>
+  <div class="titles">
+    <div class="eyebrow">Rétrospective d'équipe</div>
+    <h1>Sur la piste des loups</h1>
+    <div class="meta"><label for="sprint">Sprint :</label><input id="sprint" placeholder="ex. Sprint 24 · 2 → 16 oct."><label for="author">Votre prénom :</label><input id="author" placeholder="ex. Sara (optionnel)"></div>
+  </div>
+</header>
+<div class="tracks" aria-hidden="true"></div>
+
+<div class="intro">
+  <p><b>Règle de la meute :</b> chacun a fait de son mieux avec ce qu'il savait. On regarde la piste, pas le loup. Chacun écrit seul ses notes, puis clique sur <b>Envoyer mes notes</b> et transmet le code à l'animateur. L'animateur clique sur <b>Importer des notes</b> pour tout rassembler, puis l'équipe vote (3 empreintes par personne).</p>
+  <div class="toolbar">
+    <button id="exportBtn" type="button" class="primary">Envoyer mes notes</button>
+    <button id="importBtn" type="button" class="primary alt">Importer des notes</button>
+    <button id="copy" type="button">Copier en texte</button>
+    <button id="sample" type="button">Charger un exemple</button>
+    <button id="reset" type="button">Tout effacer</button>
+  </div>
+</div>
+<section id="exportPanel" class="panel" hidden>
+  <h3>Envoyer mes notes à l'animateur</h3>
+  <p>Copiez ce code et envoyez-le à l'animateur (Teams, Slack, mail…). Il contient toutes vos notes.</p>
+  <textarea id="exportCode" readonly aria-label="Code de vos notes"></textarea>
+  <div class="prow"><button id="copyCode" type="button" class="primary">Copier le code</button><button type="button" data-close="exportPanel">Fermer</button></div>
+</section>
+<section id="importPanel" class="panel" hidden>
+  <h3>Importer les notes de l'équipe</h3>
+  <p>Collez ici les codes reçus, un par ligne (ou tous à la suite). Les notes déjà importées ne sont pas ajoutées deux fois.</p>
+  <textarea id="importCode" aria-label="Codes à importer" placeholder="MEUTE:…"></textarea>
+  <div class="prow"><button id="doImport" type="button" class="primary">Importer</button><button type="button" data-close="importPanel">Fermer</button><span id="importMsg" class="pmsg" role="status"></span></div>
+</section>
+<div id="confirm" class="confirm" hidden>Effacer tous les post-its ? <button id="yes" type="button">Oui, effacer</button> <button id="no" type="button">Annuler</button></div>
+
+<main class="board" id="board"></main>
+
+<footer>Pour finir : gardez 2 ou 3 actions maximum, chacune avec un responsable et une échéance. Ouvrez la prochaine rétro en vérifiant ces actions.</footer>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const COLS=[
+ {id:"garder",c:"--pin",tag:"À garder",t:"Ce qui a bien marché",sub:"La force de la meute",q:"Pratiques, outils ou moments qui nous ont aidés. On continue."},
+ {id:"ameliorer",c:"--rouille",tag:"À améliorer",t:"Ce qui nous a freinés",sub:"Les ronces sur le chemin",q:"Blocages, frustrations, pertes de temps. On cherche la cause."},
+ {id:"appris",c:"--ciel",tag:"Appris",t:"Ce qu'on a appris",sub:"Le flair du loup",q:"Découvertes techniques ou humaines utiles pour la suite."},
+ {id:"merci",c:"--lilas",tag:"Merci",t:"Bravo et remerciements",sub:"Le hurlement de la meute",q:"Qui voulez-vous remercier, et pour quoi ?"},
+ {id:"actions",c:"--ambre",tag:"Actions",t:"Ce qu'on fait ensuite",sub:"Le prochain territoire",q:"Une action concrète, un responsable, une échéance.",action:true}
+];
+const KEY="retro-piste-v1";
+const blank=()=>Object.fromEntries(COLS.map(c=>[c.id,[]]));
+let state={sprint:"",notes:blank()};
+try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.notes)state={sprint:s.sprint||"",author:s.author||"",notes:{...blank(),...s.notes}};}catch(e){}
+state.author=state.author||"";
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}};
+const paw='<svg class="paw" viewBox="0 0 24 24"><ellipse cx="12" cy="16" rx="5" ry="4"/><circle cx="6" cy="10" r="2"/><circle cx="10" cy="6.5" r="2"/><circle cx="14" cy="6.5" r="2"/><circle cx="18" cy="10" r="2"/></svg>';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+
+function render(){
+  document.getElementById("board").innerHTML=COLS.map(col=>{
+    const list=[...state.notes[col.id]].sort((a,b)=>b.v-a.v);
+    return `<section class="col" style="--c:var(${col.c})">
+      <span class="tag">${col.tag}</span>
+      <h2>${col.t}</h2><p class="sub">${col.sub}</p><p class="q">${col.q}</p>
+      <form class="add" data-col="${col.id}">
+        <textarea id="in-${col.id}" aria-label="Nouveau post-it : ${col.t}" placeholder="${col.action?"L'action…":"Écrire un post-it…"} (Ctrl+Entrée)"></textarea>
+        ${col.action?`<div class="two"><input id="who-${col.id}" placeholder="Responsable" aria-label="Responsable"><input id="when-${col.id}" placeholder="Échéance" aria-label="Échéance"></div>`:""}
+        <button type="submit">Ajouter</button>
+      </form>
+      <div class="notes">${list.length?list.map(n=>`
+        <div class="note"><div class="txt">${esc(n.t)}</div>
+          ${(n.who||n.when||n.by)?`<div class="chips">${n.who?`<span class="chip">Responsable : ${esc(n.who)}</span>`:""}${n.when?`<span class="chip">Échéance : ${esc(n.when)}</span>`:""}${n.by?`<span class="chip">De ${esc(n.by)}</span>`:""}</div>`:""}
+          <div class="row"><span class="vote"><button type="button" data-vote="${col.id}|${n.id}" aria-label="Voter">${paw} +1</button>${n.v}</span>
+          <button type="button" class="del" data-del="${col.id}|${n.id}">Supprimer</button></div></div>`).join(""):'<p class="empty">Pas encore de traces ici.</p>'}</div>
+    </section>`}).join("");
+}
+const board=document.getElementById("board");
+board.addEventListener("submit",e=>{
+  e.preventDefault();const col=e.target.dataset.col;const f=e.target;
+  const t=f.querySelector("textarea").value.trim();if(!t)return;
+  const who=f.querySelector(`#who-${col}`)?.value.trim()||"",when=f.querySelector(`#when-${col}`)?.value.trim()||"";
+  state.notes[col].push({id:uid(),t,v:0,who,when,by:state.author.trim()});save();render();document.getElementById("in-"+col).focus();
+});
+board.addEventListener("keydown",e=>{if(e.target.tagName==="TEXTAREA"&&e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();e.target.form.requestSubmit();}});
+board.addEventListener("click",e=>{
+  const v=e.target.closest("[data-vote]"),d=e.target.closest("[data-del]");
+  if(v){const[c,id]=v.dataset.vote.split("|");state.notes[c].find(x=>x.id===id).v++;save();render();}
+  if(d){const[c,id]=d.dataset.del.split("|");state.notes[c]=state.notes[c].filter(x=>x.id!==id);save();render();}
+});
+const sp=document.getElementById("sprint");sp.value=state.sprint;sp.addEventListener("input",()=>{state.sprint=sp.value;save();});
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,1800);}
+document.getElementById("copy").addEventListener("click",()=>{
+  const txt=`Sur la piste des loups${state.sprint?" – "+state.sprint:""}\n\n`+COLS.map(c=>`${c.tag.toUpperCase()} – ${c.t}\n`+([...state.notes[c.id]].sort((a,b)=>b.v-a.v).map(n=>`- ${n.t}${n.who?` [${n.who}]`:""}${n.when?` (${n.when})`:""}${n.v?` – ${n.v} votes`:""}${n.by?` – de ${n.by}`:""}`).join("\n")||"- (vide)")).join("\n\n");
+  navigator.clipboard.writeText(txt).then(()=>toast("Tableau copié")).catch(()=>toast("Copie refusée par le navigateur"));
+});
+document.getElementById("sample").addEventListener("click",()=>{
+  const ex={garder:["Revues de code faites dans la journée","Daily courte et efficace"],ameliorer:["Environnement de test instable 2 jours","Specs reçues tard"],appris:["Découper les tickets plus finement évite les blocages"],merci:["Merci Sara pour l'aide sur la mise en prod"]};
+  for(const k in ex)ex[k].forEach(t=>state.notes[k].push({id:uid(),t:"[Exemple] "+t,v:0}));
+  state.notes.actions.push({id:uid(),t:"[Exemple] Stabiliser l'environnement de test",v:0,who:"Karim",when:"Mercredi"});
+  save();render();toast("Exemple chargé");
+});
+const au=document.getElementById("author");au.value=state.author;au.addEventListener("input",()=>{state.author=au.value;save();});
+const enc=o=>"MEUTE:"+btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+const dec=s=>JSON.parse(decodeURIComponent(escape(atob(s))));
+const show=id=>{["exportPanel","importPanel"].forEach(p=>document.getElementById(p).hidden=p!==id);};
+document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>document.getElementById(b.dataset.close).hidden=true));
+document.getElementById("exportBtn").addEventListener("click",()=>{
+  const total=COLS.reduce((s,c)=>s+state.notes[c.id].length,0);
+  if(!total){toast("Aucune note à envoyer");return;}
+  document.getElementById("exportCode").value=enc({a:state.author.trim(),s:state.sprint,n:state.notes});
+  show("exportPanel");document.getElementById("exportCode").select();
+});
+document.getElementById("copyCode").addEventListener("click",()=>{
+  const ta=document.getElementById("exportCode");
+  navigator.clipboard.writeText(ta.value).then(()=>toast("Code copié")).catch(()=>{ta.select();toast("Sélectionné : faites Ctrl+C");});
+});
+document.getElementById("importBtn").addEventListener("click",()=>{document.getElementById("importMsg").textContent="";show("importPanel");document.getElementById("importCode").focus();});
+document.getElementById("doImport").addEventListener("click",()=>{
+  const raw=document.getElementById("importCode").value;
+  const codes=raw.match(/MEUTE:[A-Za-z0-9+/=]+/g)||[];
+  const msg=document.getElementById("importMsg");
+  if(!codes.length){msg.style.color="var(--rouille)";msg.textContent="Aucun code reconnu. Un code commence par MEUTE:";return;}
+  let added=0,bad=0,people=new Set();
+  const seen=new Set(COLS.flatMap(c=>state.notes[c.id].map(n=>n.id)));
+  codes.forEach(code=>{
+    try{const d=dec(code.slice(6));
+      COLS.forEach(c=>(d.n?.[c.id]||[]).forEach(n=>{
+        if(!n||!n.t||seen.has(n.id))return;seen.add(n.id);
+        state.notes[c.id].push({id:n.id||uid(),t:String(n.t),v:+n.v||0,who:n.who||"",when:n.when||"",by:n.by||d.a||""});added++;}));
+      people.add(d.a||"?");
+    }catch(e){bad++;}
+  });
+  save();render();
+  msg.style.color=bad?"var(--rouille)":"var(--pin)";
+  msg.textContent=`${added} note(s) importée(s) de ${people.size} participant(s)`+(bad?` · ${bad} code(s) illisible(s)`:"");
+  document.getElementById("importCode").value="";
+});
+const cf=document.getElementById("confirm");
+document.getElementById("reset").addEventListener("click",()=>cf.hidden=false);
+document.getElementById("no").addEventListener("click",()=>cf.hidden=true);
+document.getElementById("yes").addEventListener("click",()=>{state.notes=blank();save();render();cf.hidden=true;toast("Tableau effacé");});
+render();
+</script>
+</html>

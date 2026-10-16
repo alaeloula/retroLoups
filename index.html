@@ -66,6 +66,15 @@ button.primary.alt{background:var(--ardoise)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ardoise);color:var(--carte);padding:8px 14px;border-radius:6px;font-weight:600}
 footer{margin-top:26px;color:var(--gris);font-size:13px;max-width:80ch}
 </style>
+<style>
+.sync{margin:0 0 16px;padding:10px 14px;border-radius:8px;background:var(--carte);border:1px solid var(--ligne);color:var(--gris);max-width:760px}
+.sync b{color:var(--ardoise)}
+.panel input{background:var(--neige);border:1px solid var(--ligne);color:var(--ardoise);border-radius:6px;padding:6px 10px;font:inherit;min-width:0;max-width:100%}
+.panel code{background:var(--neige);border:1px solid var(--ligne);border-radius:6px;padding:4px 8px;font:13px ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere;min-width:0}
+.chip.ok{color:var(--pin);border-color:var(--pin)}
+.chip.wait{color:var(--rouille);border-color:var(--rouille)}
+.retro-name{font-weight:700;color:var(--ardoise)}
+</style>
 
 <div class="wrap">
 <header>
@@ -80,23 +89,42 @@ footer{margin-top:26px;color:var(--gris);font-size:13px;max-width:80ch}
     <polygon points="45,76 55,76 50,82" fill="#2c3a40"/>
   </svg>
   <div class="titles">
-    <div class="eyebrow">Rétrospective d'équipe</div>
+    <div class="eyebrow" id="eyebrow">Rétrospective d'équipe</div>
     <h1>Sur la piste des loups</h1>
-    <div class="meta"><label for="sprint">Sprint :</label><input id="sprint" placeholder="ex. Sprint 24 · 2 → 16 oct."><label for="author">Votre prénom :</label><input id="author" placeholder="ex. Sara (optionnel)"></div>
+    <div class="meta">
+      <span>Rétro : <span class="retro-name" id="retroName"></span></span>
+      <label for="author">Votre prénom :</label><input id="author" placeholder="ex. Sara (optionnel)">
+    </div>
   </div>
 </header>
 <div class="tracks" aria-hidden="true"></div>
 
+<p class="sync" id="syncInfo"></p>
+
+<section id="animPanel" class="panel" hidden>
+  <h3>Vue animateur</h3>
+  <p>Saisissez votre clé pour voir les notes de toute l'équipe. Cliquez sur Actualiser pour voir les nouvelles.</p>
+  <div class="prow">
+    <label for="cle">Clé animateur :</label><input id="cle" type="password" autocomplete="off">
+    <button id="loadBtn" type="button" class="primary">Afficher les notes de l'équipe</button>
+    <button id="refreshBtn" type="button">Actualiser</button>
+    <span id="animMsg" class="pmsg" role="status"></span>
+  </div>
+  <div class="prow"><span>Lien à envoyer à l'équipe :</span><code id="teamLink"></code><button id="copyLink" type="button">Copier le lien</button></div>
+  <div class="prow"><label for="newRetro">Préparer une autre rétro :</label><input id="newRetro" placeholder="ex. sprint-25"><button id="goRetro" type="button">Ouvrir</button></div>
+</section>
+
 <div class="intro">
-  <p><b>Règle de la meute :</b> chacun a fait de son mieux avec ce qu'il savait. On regarde la piste, pas le loup. Chacun écrit seul ses notes, puis clique sur <b>Envoyer mes notes</b> et transmet le code à l'animateur. L'animateur clique sur <b>Importer des notes</b> pour tout rassembler, puis l'équipe vote (3 empreintes par personne).</p>
+  <p id="introText"></p>
   <div class="toolbar">
     <button id="exportBtn" type="button" class="primary">Envoyer mes notes</button>
     <button id="importBtn" type="button" class="primary alt">Importer des notes</button>
     <button id="copy" type="button">Copier en texte</button>
     <button id="sample" type="button">Charger un exemple</button>
-    <button id="reset" type="button">Tout effacer</button>
+    <button id="reset" type="button">Effacer mes notes</button>
   </div>
 </div>
+
 <section id="exportPanel" class="panel" hidden>
   <h3>Envoyer mes notes à l'animateur</h3>
   <p>Copiez ce code et envoyez-le à l'animateur (Teams, Slack, mail…). Il contient toutes vos notes.</p>
@@ -104,12 +132,12 @@ footer{margin-top:26px;color:var(--gris);font-size:13px;max-width:80ch}
   <div class="prow"><button id="copyCode" type="button" class="primary">Copier le code</button><button type="button" data-close="exportPanel">Fermer</button></div>
 </section>
 <section id="importPanel" class="panel" hidden>
-  <h3>Importer les notes de l'équipe</h3>
-  <p>Collez ici les codes reçus, un par ligne (ou tous à la suite). Les notes déjà importées ne sont pas ajoutées deux fois.</p>
+  <h3>Importer des notes</h3>
+  <p>Collez ici les codes reçus (MEUTE:…), un par ligne. Les notes déjà présentes ne sont pas ajoutées deux fois.</p>
   <textarea id="importCode" aria-label="Codes à importer" placeholder="MEUTE:…"></textarea>
   <div class="prow"><button id="doImport" type="button" class="primary">Importer</button><button type="button" data-close="importPanel">Fermer</button><span id="importMsg" class="pmsg" role="status"></span></div>
 </section>
-<div id="confirm" class="confirm" hidden>Effacer tous les post-its ? <button id="yes" type="button">Oui, effacer</button> <button id="no" type="button">Annuler</button></div>
+<div id="confirm" class="confirm" hidden>Effacer toutes vos notes ? <button id="yes" type="button">Oui, effacer</button> <button id="no" type="button">Annuler</button></div>
 
 <main class="board" id="board"></main>
 
@@ -118,6 +146,12 @@ footer{margin-top:26px;color:var(--gris);font-size:13px;max-width:80ch}
 <div class="toast" id="toast" hidden></div>
 
 <script>
+/* ===== Configuration ===== */
+// Collez ici l'URL de l'application Web Google Apps Script (finit par /exec).
+// Vide = mode hors ligne (échange de codes MEUTE:…).
+const ENDPOINT = "";
+/* ========================= */
+
 const COLS=[
  {id:"garder",c:"--pin",tag:"À garder",t:"Ce qui a bien marché",sub:"La force de la meute",q:"Pratiques, outils ou moments qui nous ont aidés. On continue."},
  {id:"ameliorer",c:"--rouille",tag:"À améliorer",t:"Ce qui nous a freinés",sub:"Les ronces sur le chemin",q:"Blocages, frustrations, pertes de temps. On cherche la cause."},
@@ -125,19 +159,72 @@ const COLS=[
  {id:"merci",c:"--lilas",tag:"Merci",t:"Bravo et remerciements",sub:"Le hurlement de la meute",q:"Qui voulez-vous remercier, et pour quoi ?"},
  {id:"actions",c:"--ambre",tag:"Actions",t:"Ce qu'on fait ensuite",sub:"Le prochain territoire",q:"Une action concrète, un responsable, une échéance.",action:true}
 ];
-const KEY="retro-piste-v1";
+const ONLINE=!!ENDPOINT;
+const ANIM=location.hash==="#animateur";
+const slug=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,40);
+const RETRO=slug(new URLSearchParams(location.search).get("r"))||"retro";
+const KEY="retro-piste-v2-"+RETRO;
 const blank=()=>Object.fromEntries(COLS.map(c=>[c.id,[]]));
-let state={sprint:"",notes:blank()};
-try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.notes)state={sprint:s.sprint||"",author:s.author||"",notes:{...blank(),...s.notes}};}catch(e){}
-state.author=state.author||"";
+const $=id=>document.getElementById(id);
+
+let state={author:"",notes:blank(),del:[]};
+try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.notes)state={author:s.author||"",notes:{...blank(),...s.notes},del:s.del||[]};}catch(e){}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}};
+let remote=null; // notes de l'équipe (vue animateur en ligne)
+let cle="";try{cle=localStorage.getItem("retro-piste-cle")||"";}catch(e){}
+
 const paw='<svg class="paw" viewBox="0 0 24 24"><ellipse cx="12" cy="16" rx="5" ry="4"/><circle cx="6" cy="10" r="2"/><circle cx="10" cy="6.5" r="2"/><circle cx="14" cy="6.5" r="2"/><circle cx="18" cy="10" r="2"/></svg>';
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+function toast(m){const t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,2200);}
 
+/* ----- Échanges avec Google Sheets ----- */
+function api(body){
+  return fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body)})
+    .then(r=>r.json()).then(j=>{if(!j.ok)throw new Error(j.erreur||"refus");return j;});
+}
+let flushing=false;
+async function flush(){
+  if(!ONLINE||flushing)return;flushing=true;let changed=false,failed=false;
+  try{
+    for(const c of COLS)for(const n of state.notes[c.id]){
+      if(n.sync)continue;
+      try{await api({action:"add",retro:RETRO,col:c.id,id:n.id,t:n.t,by:n.by||"",who:n.who||"",when:n.when||""});n.sync=true;changed=true;}catch(e){failed=true;}
+    }
+    for(const id of [...state.del]){
+      try{await api({action:"delete",id});state.del=state.del.filter(x=>x!==id);changed=true;}catch(e){failed=true;}
+    }
+  }finally{flushing=false;}
+  if(changed){save();if(!(ANIM&&remote))render();}
+  if(failed)toast("Envoi impossible pour l'instant, nouvel essai automatique");
+}
+setInterval(flush,15000);
+window.addEventListener("online",flush);
+
+async function loadRemote(silent){
+  if(!cle){$("animMsg").textContent="Saisissez la clé animateur.";return;}
+  $("animMsg").style.color="var(--gris)";$("animMsg").textContent="Chargement…";
+  try{
+    await flush();
+    const r=await fetch(ENDPOINT+"?retro="+encodeURIComponent(RETRO)+"&cle="+encodeURIComponent(cle));
+    const j=await r.json();
+    if(!j.ok){$("animMsg").style.color="var(--rouille)";$("animMsg").textContent=j.erreur==="cle"?"Clé incorrecte.":"Erreur : "+j.erreur;return;}
+    remote=blank();j.notes.forEach(n=>{if(remote[n.col])remote[n.col].push(n);});
+    try{localStorage.setItem("retro-piste-cle",cle);}catch(e){}
+    const people=new Set(j.notes.map(n=>n.by||"?"));
+    $("animMsg").style.color="var(--pin)";
+    $("animMsg").textContent=`${j.notes.length} note(s) de ${j.notes.length?people.size:0} participant(s) · mis à jour à ${new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})}`;
+    render();
+  }catch(e){$("animMsg").style.color="var(--rouille)";$("animMsg").textContent="Impossible de joindre Google Sheets. Vérifiez la connexion et l'URL.";}
+}
+
+/* ----- Affichage ----- */
+const viewingRemote=()=>ANIM&&ONLINE&&remote;
+function current(){return viewingRemote()?remote:state.notes;}
 function render(){
-  document.getElementById("board").innerHTML=COLS.map(col=>{
-    const list=[...state.notes[col.id]].sort((a,b)=>b.v-a.v);
+  const data=current(),showVotes=ANIM;
+  $("board").innerHTML=COLS.map(col=>{
+    const list=[...data[col.id]].sort((a,b)=>(b.v||0)-(a.v||0));
     return `<section class="col" style="--c:var(${col.c})">
       <span class="tag">${col.tag}</span>
       <h2>${col.t}</h2><p class="sub">${col.sub}</p><p class="q">${col.q}</p>
@@ -146,78 +233,126 @@ function render(){
         ${col.action?`<div class="two"><input id="who-${col.id}" placeholder="Responsable" aria-label="Responsable"><input id="when-${col.id}" placeholder="Échéance" aria-label="Échéance"></div>`:""}
         <button type="submit">Ajouter</button>
       </form>
-      <div class="notes">${list.length?list.map(n=>`
-        <div class="note"><div class="txt">${esc(n.t)}</div>
-          ${(n.who||n.when||n.by)?`<div class="chips">${n.who?`<span class="chip">Responsable : ${esc(n.who)}</span>`:""}${n.when?`<span class="chip">Échéance : ${esc(n.when)}</span>`:""}${n.by?`<span class="chip">De ${esc(n.by)}</span>`:""}</div>`:""}
-          <div class="row"><span class="vote"><button type="button" data-vote="${col.id}|${n.id}" aria-label="Voter">${paw} +1</button>${n.v}</span>
-          <button type="button" class="del" data-del="${col.id}|${n.id}">Supprimer</button></div></div>`).join(""):'<p class="empty">Pas encore de traces ici.</p>'}</div>
+      <div class="notes">${list.length?list.map(n=>{
+        const st=(ONLINE&&!viewingRemote())?(n.sync?'<span class="chip ok">Envoyée</span>':'<span class="chip wait">En attente d\'envoi</span>'):"";
+        const chips=[n.who?`<span class="chip">Responsable : ${esc(n.who)}</span>`:"",n.when?`<span class="chip">Échéance : ${esc(n.when)}</span>`:"",(n.by&&(ANIM||!ONLINE))?`<span class="chip">De ${esc(n.by)}</span>`:"",st].join("");
+        return `<div class="note"><div class="txt">${esc(n.t)}</div>
+          ${chips?`<div class="chips">${chips}</div>`:""}
+          <div class="row">${showVotes?`<span class="vote"><button type="button" data-vote="${col.id}|${n.id}" aria-label="Voter">${paw} +1</button>${n.v||0}</span>`:"<span></span>"}
+          <button type="button" class="del" data-del="${col.id}|${n.id}">Supprimer</button></div></div>`;}).join(""):'<p class="empty">Pas encore de traces ici.</p>'}</div>
     </section>`}).join("");
 }
-const board=document.getElementById("board");
+
+/* ----- Actions sur le tableau ----- */
+const board=$("board");
 board.addEventListener("submit",e=>{
   e.preventDefault();const col=e.target.dataset.col;const f=e.target;
   const t=f.querySelector("textarea").value.trim();if(!t)return;
   const who=f.querySelector(`#who-${col}`)?.value.trim()||"",when=f.querySelector(`#when-${col}`)?.value.trim()||"";
-  state.notes[col].push({id:uid(),t,v:0,who,when,by:state.author.trim()});save();render();document.getElementById("in-"+col).focus();
+  const n={id:uid(),t,v:0,who,when,by:state.author.trim(),sync:false};
+  state.notes[col].push(n);save();
+  if(viewingRemote()){remote[col].push({...n});}
+  render();$("in-"+col).focus();
+  flush().then(()=>{if(viewingRemote())loadRemote(true);});
 });
 board.addEventListener("keydown",e=>{if(e.target.tagName==="TEXTAREA"&&e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();e.target.form.requestSubmit();}});
-board.addEventListener("click",e=>{
+board.addEventListener("click",async e=>{
   const v=e.target.closest("[data-vote]"),d=e.target.closest("[data-del]");
-  if(v){const[c,id]=v.dataset.vote.split("|");state.notes[c].find(x=>x.id===id).v++;save();render();}
-  if(d){const[c,id]=d.dataset.del.split("|");state.notes[c]=state.notes[c].filter(x=>x.id!==id);save();render();}
+  if(v){
+    const[c,id]=v.dataset.vote.split("|");const n=current()[c].find(x=>x.id===id);if(!n)return;
+    n.v=(n.v||0)+1;render();
+    if(viewingRemote()){try{await api({action:"vote",id,cle});}catch(err){n.v--;render();toast("Vote non enregistré");}}
+    else save();
+  }
+  if(d){
+    const[c,id]=d.dataset.del.split("|");
+    const mine=state.notes[c].find(x=>x.id===id);
+    state.notes[c]=state.notes[c].filter(x=>x.id!==id);
+    if(ONLINE&&(!mine||mine.sync))state.del.push(id);
+    if(viewingRemote())remote[c]=remote[c].filter(x=>x.id!==id);
+    save();render();flush();
+  }
 });
-const sp=document.getElementById("sprint");sp.value=state.sprint;sp.addEventListener("input",()=>{state.sprint=sp.value;save();});
-function toast(m){const t=document.getElementById("toast");t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,1800);}
-document.getElementById("copy").addEventListener("click",()=>{
-  const txt=`Sur la piste des loups${state.sprint?" – "+state.sprint:""}\n\n`+COLS.map(c=>`${c.tag.toUpperCase()} – ${c.t}\n`+([...state.notes[c.id]].sort((a,b)=>b.v-a.v).map(n=>`- ${n.t}${n.who?` [${n.who}]`:""}${n.when?` (${n.when})`:""}${n.v?` – ${n.v} votes`:""}${n.by?` – de ${n.by}`:""}`).join("\n")||"- (vide)")).join("\n\n");
+const au=$("author");au.value=state.author;au.addEventListener("input",()=>{state.author=au.value;save();});
+$("retroName").textContent=RETRO;
+
+$("copy").addEventListener("click",()=>{
+  const data=current();
+  const txt=`Sur la piste des loups – ${RETRO}\n\n`+COLS.map(c=>`${c.tag.toUpperCase()} – ${c.t}\n`+([...data[c.id]].sort((a,b)=>(b.v||0)-(a.v||0)).map(n=>`- ${n.t}${n.who?` [${n.who}]`:""}${n.when?` (${n.when})`:""}${n.v?` – ${n.v} votes`:""}${n.by?` – de ${n.by}`:""}`).join("\n")||"- (vide)")).join("\n\n");
   navigator.clipboard.writeText(txt).then(()=>toast("Tableau copié")).catch(()=>toast("Copie refusée par le navigateur"));
 });
-document.getElementById("sample").addEventListener("click",()=>{
-  const ex={garder:["Revues de code faites dans la journée","Daily courte et efficace"],ameliorer:["Environnement de test instable 2 jours","Specs reçues tard"],appris:["Découper les tickets plus finement évite les blocages"],merci:["Merci Sara pour l'aide sur la mise en prod"]};
-  for(const k in ex)ex[k].forEach(t=>state.notes[k].push({id:uid(),t:"[Exemple] "+t,v:0}));
-  state.notes.actions.push({id:uid(),t:"[Exemple] Stabiliser l'environnement de test",v:0,who:"Karim",when:"Mercredi"});
-  save();render();toast("Exemple chargé");
-});
-const au=document.getElementById("author");au.value=state.author;au.addEventListener("input",()=>{state.author=au.value;save();});
+
+/* ----- Codes MEUTE (secours / mode hors ligne) ----- */
 const enc=o=>"MEUTE:"+btoa(unescape(encodeURIComponent(JSON.stringify(o))));
 const dec=s=>JSON.parse(decodeURIComponent(escape(atob(s))));
-const show=id=>{["exportPanel","importPanel"].forEach(p=>document.getElementById(p).hidden=p!==id);};
-document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>document.getElementById(b.dataset.close).hidden=true));
-document.getElementById("exportBtn").addEventListener("click",()=>{
-  const total=COLS.reduce((s,c)=>s+state.notes[c.id].length,0);
-  if(!total){toast("Aucune note à envoyer");return;}
-  document.getElementById("exportCode").value=enc({a:state.author.trim(),s:state.sprint,n:state.notes});
-  show("exportPanel");document.getElementById("exportCode").select();
+const show=id=>{["exportPanel","importPanel"].forEach(p=>$(p).hidden=p!==id);};
+document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>$(b.dataset.close).hidden=true));
+$("exportBtn").addEventListener("click",()=>{
+  if(!COLS.some(c=>state.notes[c.id].length)){toast("Aucune note à envoyer");return;}
+  $("exportCode").value=enc({a:state.author.trim(),r:RETRO,n:state.notes});show("exportPanel");$("exportCode").select();
 });
-document.getElementById("copyCode").addEventListener("click",()=>{
-  const ta=document.getElementById("exportCode");
-  navigator.clipboard.writeText(ta.value).then(()=>toast("Code copié")).catch(()=>{ta.select();toast("Sélectionné : faites Ctrl+C");});
-});
-document.getElementById("importBtn").addEventListener("click",()=>{document.getElementById("importMsg").textContent="";show("importPanel");document.getElementById("importCode").focus();});
-document.getElementById("doImport").addEventListener("click",()=>{
-  const raw=document.getElementById("importCode").value;
-  const codes=raw.match(/MEUTE:[A-Za-z0-9+/=]+/g)||[];
-  const msg=document.getElementById("importMsg");
+$("copyCode").addEventListener("click",()=>{const ta=$("exportCode");navigator.clipboard.writeText(ta.value).then(()=>toast("Code copié")).catch(()=>{ta.select();toast("Sélectionné : faites Ctrl+C");});});
+$("importBtn").addEventListener("click",()=>{$("importMsg").textContent="";show("importPanel");$("importCode").focus();});
+$("doImport").addEventListener("click",()=>{
+  const codes=$("importCode").value.match(/MEUTE:[A-Za-z0-9+/=]+/g)||[];const msg=$("importMsg");
   if(!codes.length){msg.style.color="var(--rouille)";msg.textContent="Aucun code reconnu. Un code commence par MEUTE:";return;}
-  let added=0,bad=0,people=new Set();
-  const seen=new Set(COLS.flatMap(c=>state.notes[c.id].map(n=>n.id)));
-  codes.forEach(code=>{
-    try{const d=dec(code.slice(6));
-      COLS.forEach(c=>(d.n?.[c.id]||[]).forEach(n=>{
-        if(!n||!n.t||seen.has(n.id))return;seen.add(n.id);
-        state.notes[c.id].push({id:n.id||uid(),t:String(n.t),v:+n.v||0,who:n.who||"",when:n.when||"",by:n.by||d.a||""});added++;}));
-      people.add(d.a||"?");
-    }catch(e){bad++;}
-  });
+  let added=0,bad=0;const people=new Set();
+  const seen=new Set([...COLS.flatMap(c=>state.notes[c.id].map(n=>n.id)),...(remote?COLS.flatMap(c=>remote[c.id].map(n=>n.id)):[])]);
+  codes.forEach(code=>{try{const d=dec(code.slice(6));
+    COLS.forEach(c=>(d.n?.[c.id]||[]).forEach(n=>{if(!n||!n.t||seen.has(n.id))return;seen.add(n.id);
+      state.notes[c.id].push({id:n.id||uid(),t:String(n.t),v:+n.v||0,who:n.who||"",when:n.when||"",by:n.by||d.a||"",sync:false});added++;}));
+    people.add(d.a||"?");}catch(e){bad++;}});
   save();render();
   msg.style.color=bad?"var(--rouille)":"var(--pin)";
   msg.textContent=`${added} note(s) importée(s) de ${people.size} participant(s)`+(bad?` · ${bad} code(s) illisible(s)`:"");
-  document.getElementById("importCode").value="";
+  $("importCode").value="";
+  if(ONLINE)flush().then(()=>{if(viewingRemote())loadRemote(true);});
 });
-const cf=document.getElementById("confirm");
-document.getElementById("reset").addEventListener("click",()=>cf.hidden=false);
-document.getElementById("no").addEventListener("click",()=>cf.hidden=true);
-document.getElementById("yes").addEventListener("click",()=>{state.notes=blank();save();render();cf.hidden=true;toast("Tableau effacé");});
-render();
+
+$("sample").addEventListener("click",()=>{
+  const ex={garder:["Revues de code faites dans la journée","Daily courte et efficace"],ameliorer:["Environnement de test instable 2 jours","Specs reçues tard"],appris:["Découper les tickets plus finement évite les blocages"],merci:["Merci Sara pour l'aide sur la mise en prod"]};
+  for(const k in ex)ex[k].forEach(t=>state.notes[k].push({id:uid(),t:"[Exemple] "+t,v:0,sync:false}));
+  state.notes.actions.push({id:uid(),t:"[Exemple] Stabiliser l'environnement de test",v:0,who:"Karim",when:"Mercredi",sync:false});
+  save();render();toast("Exemple chargé");
+});
+const cf=$("confirm");
+$("reset").addEventListener("click",()=>cf.hidden=false);
+$("no").addEventListener("click",()=>cf.hidden=true);
+$("yes").addEventListener("click",()=>{
+  if(ONLINE)COLS.forEach(c=>state.notes[c.id].forEach(n=>{if(n.sync)state.del.push(n.id);}));
+  state.notes=blank();save();cf.hidden=true;
+  if(viewingRemote())loadRemote(true);else render();
+  flush();toast("Vos notes sont effacées");
+});
+
+/* ----- Mise en place selon le mode ----- */
+const base=location.origin+location.pathname;
+$("importBtn").hidden=!ANIM;
+$("exportBtn").hidden=ONLINE;
+$("sample").hidden=ONLINE;
+if(ANIM){
+  $("eyebrow").textContent="Vue animateur";
+  $("teamLink").textContent=base+"?r="+encodeURIComponent(RETRO);
+  $("copyLink").addEventListener("click",()=>navigator.clipboard.writeText($("teamLink").textContent).then(()=>toast("Lien copié")).catch(()=>toast("Sélectionnez le lien et copiez-le")));
+  $("goRetro").addEventListener("click",()=>{const s=slug($("newRetro").value);if(!s){toast("Donnez un nom à la rétro");return;}location.href=base+"?r="+s+"#animateur";});
+}
+if(ONLINE&&ANIM){
+  $("animPanel").hidden=false;
+  $("cle").value=cle;
+  $("loadBtn").addEventListener("click",()=>{cle=$("cle").value.trim();loadRemote();});
+  $("refreshBtn").addEventListener("click",()=>{cle=$("cle").value.trim();loadRemote();});
+  $("syncInfo").innerHTML="<b>Vue animateur.</b> Vous voyez les notes de toute l'équipe. Les participants ne voient que les leurs.";
+  $("introText").innerHTML="Envoyez le lien de l'équipe ci-dessus. Pendant la rétro, cliquez sur <b>Actualiser</b> pour voir les nouvelles notes, puis faites voter l'équipe (3 empreintes par personne).";
+  if(cle)loadRemote(true);
+}else if(ONLINE){
+  $("syncInfo").innerHTML="<b>Vos notes sont envoyées automatiquement à l'animateur.</b> Vous ne voyez que les vôtres.";
+  $("introText").innerHTML="<b>Règle de la meute :</b> chacun a fait de son mieux avec ce qu'il savait. On regarde la piste, pas le loup. Indiquez votre prénom, puis écrivez vos notes.";
+}else{
+  if(ANIM){$("animPanel").hidden=false;["cle","loadBtn","refreshBtn"].forEach(id=>$(id).hidden=true);document.querySelector('label[for="cle"]').hidden=true;$("animPanel").querySelector("p").textContent="Mode hors ligne : importez les codes MEUTE reçus de l'équipe.";}
+  $("syncInfo").innerHTML="<b>Mode hors ligne.</b> Vos notes restent dans ce navigateur. Envoyez-les à l'animateur avec le bouton « Envoyer mes notes ».";
+  $("introText").innerHTML="<b>Règle de la meute :</b> chacun a fait de son mieux avec ce qu'il savait. On regarde la piste, pas le loup.";
+}
+window.addEventListener("hashchange",()=>location.reload());
+render();flush();
 </script>
 </html>
